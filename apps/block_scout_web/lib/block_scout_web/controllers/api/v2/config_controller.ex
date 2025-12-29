@@ -2,12 +2,33 @@ defmodule BlockScoutWeb.API.V2.ConfigController do
   use BlockScoutWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  use Utils.RuntimeEnvHelper, chain_type: [:explorer, :chain_type]
+
   alias Explorer.Chain.SmartContract
   alias OpenApiSpex.Schema
 
   plug(OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true)
 
   tags(["config"])
+
+  operation :backend,
+    summary: "Get backend environment configuration",
+    description: "Returns non-secret backend environment variables (e.g., CHAIN_TYPE).",
+    parameters: base_params(),
+    responses: [
+      ok:
+        {"Backend environment configuration.", "application/json",
+         %Schema{type: :object, properties: %{chain_type: %Schema{type: :string, nullable: true}}}},
+      unprocessable_entity: JsonErrorResponse.response()
+    ]
+
+  def backend(conn, _params) do
+    chain_type = chain_type()
+
+    conn
+    |> put_status(200)
+    |> json(%{"CHAIN_TYPE" => chain_type})
+  end
 
   operation :backend_version,
     summary: "Get backend version",
