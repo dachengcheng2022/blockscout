@@ -834,7 +834,7 @@ defmodule BlockScoutWeb.Chain do
     %PagingOptions{options | page_number: new_page_number, page_size: new_page_size}
   end
 
-  @spec param_to_block_number(binary()) :: {:ok, integer()} | {:error, :invalid}
+  @spec param_to_block_number(binary()) :: {:ok, integer()} | {:error, :invalid} | {:error, :not_found}
   def param_to_block_number(formatted_number) when is_binary(formatted_number) do
     case Integer.parse(formatted_number) do
       {number, ""} -> validate_block_number(number)
@@ -842,14 +842,14 @@ defmodule BlockScoutWeb.Chain do
     end
   end
 
-  @spec param_to_block_number(integer()) :: {:ok, integer()} | {:error, :invalid}
+  @spec param_to_block_number(integer()) :: {:ok, integer()} | {:error, :invalid} | {:error, :not_found}
   def param_to_block_number(number) when is_integer(number), do: validate_block_number(number)
 
   defp validate_block_number(number) when is_integer(number) and number >= 0 do
     if number <= allowed_max_block_number() do
       {:ok, number}
     else
-      {:error, :invalid}
+      {:error, :not_found}
     end
   end
 
@@ -1229,6 +1229,9 @@ defmodule BlockScoutWeb.Chain do
 
       {:error, :invalid} ->
         {:error, {:invalid, :number}}
+
+      {:error, :not_found} ->
+        {:error, :not_found}
     end
   end
 
@@ -1236,7 +1239,7 @@ defmodule BlockScoutWeb.Chain do
       when is_integer(number) do
     case param_to_block_number(number) do
       {:ok, number} -> {:ok, :number, number}
-      {:error, :invalid} -> {:error, :not_found}
+      {:error, :not_found} -> {:error, :not_found}
     end
   end
 
