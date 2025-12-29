@@ -74,7 +74,7 @@ defmodule BlockScoutWeb.API.RPC.BlockController do
   @spec getblockcountdown(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def getblockcountdown(conn, params) do
     with {:block_param, {:ok, unsafe_target_block_number}} <- {:block_param, Map.fetch(params, "blockno")},
-         {:ok, target_block_number} <- ChainWeb.param_to_block_number(unsafe_target_block_number),
+         {:ok, target_block_number} <- ChainWeb.param_to_block_number(unsafe_target_block_number, false),
          {:max_block, current_block_number} when not is_nil(current_block_number) <-
            {:max_block, BlockNumber.get_max()},
          {:average_block_time, average_block_time} when is_struct(average_block_time) <-
@@ -94,6 +94,9 @@ defmodule BlockScoutWeb.API.RPC.BlockController do
         render(conn, :error, error: "Query parameter 'blockno' is required")
 
       {:error, :invalid} ->
+        render(conn, :error, error: "Invalid block number")
+
+      {:error, :not_found} ->
         render(conn, :error, error: "Invalid block number")
 
       {:average_block_time, {:error, :disabled}} ->

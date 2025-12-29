@@ -834,26 +834,32 @@ defmodule BlockScoutWeb.Chain do
     %PagingOptions{options | page_number: new_page_number, page_size: new_page_size}
   end
 
-  @spec param_to_block_number(binary()) :: {:ok, integer()} | {:error, :invalid} | {:error, :not_found}
-  def param_to_block_number(formatted_number) when is_binary(formatted_number) do
+  @spec param_to_block_number(binary(), boolean()) :: {:ok, integer()} | {:error, :invalid} | {:error, :not_found}
+  def param_to_block_number(_number, validate_max_block_number? \\ true)
+
+  def param_to_block_number(formatted_number, validate_max_block_number?) when is_binary(formatted_number) do
     case Integer.parse(formatted_number) do
-      {number, ""} -> validate_block_number(number)
-      _ -> {:error, :invalid}
+      {number, ""} ->
+        validate_block_number(number, validate_max_block_number?)
+
+      _ ->
+        {:error, :invalid}
     end
   end
 
-  @spec param_to_block_number(integer()) :: {:ok, integer()} | {:error, :invalid} | {:error, :not_found}
-  def param_to_block_number(number) when is_integer(number), do: validate_block_number(number)
+  @spec param_to_block_number(integer(), boolean()) :: {:ok, integer()} | {:error, :invalid} | {:error, :not_found}
+  def param_to_block_number(number, validate_max_block_number?) when is_integer(number),
+    do: validate_block_number(number, validate_max_block_number?)
 
-  defp validate_block_number(number) when is_integer(number) and number >= 0 do
-    if number <= allowed_max_block_number() do
+  defp validate_block_number(number, validate_max_block_number?) when is_integer(number) and number >= 0 do
+    if not validate_max_block_number? or (validate_max_block_number? and number <= allowed_max_block_number()) do
       {:ok, number}
     else
       {:error, :not_found}
     end
   end
 
-  defp validate_block_number(_), do: {:error, :invalid}
+  defp validate_block_number(_, _), do: {:error, :invalid}
 
   defp allowed_max_block_number do
     BlockNumber.get_max()
