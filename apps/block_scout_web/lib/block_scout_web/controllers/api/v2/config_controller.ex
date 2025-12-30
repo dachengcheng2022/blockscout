@@ -18,10 +18,14 @@ defmodule BlockScoutWeb.API.V2.ConfigController do
     responses: [
       ok:
         {"Backend environment configuration.", "application/json",
-         %Schema{type: :object, properties: %{chain_type: %Schema{type: :string, nullable: true}}}},
+         %Schema{type: :object, properties: %{CHAIN_TYPE: %Schema{type: :string, nullable: true}}}},
       unprocessable_entity: JsonErrorResponse.response()
     ]
 
+  @doc """
+    Function to handle GET requests to `/api/v2/config/backend` endpoint.
+  """
+  @spec backend(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def backend(conn, _params) do
     chain_type = chain_type()
 
