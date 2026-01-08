@@ -11,6 +11,3 @@ services:
       - 'host.docker.internal:host-gateway'
     env_file:
       -  ../envs/common-user-ops-indexer.env
-    ports:
-      - target: 8050
-        published: 8050
