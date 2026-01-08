@@ -33,12 +33,6 @@ services:
         RELEASE_VERSION: 9.0.2
     links:
       - db:database
-    environment:
-        ETHEREUM_JSONRPC_HTTP_URL: http://172.23.250.250:8545/
-        ETHEREUM_JSONRPC_TRACE_URL: http://172.23.250.250:8545/
-        # ETHEREUM_JSONRPC_WS_URL: ws://host.docker.internal:8545/
-        CHAIN_ID: '97822'
-
   # nft_media_handler:
   #   depends_on:
   #     - backend
